@@ -1,5 +1,7 @@
 ;;; midje-mode.el --- Minor mode for Midje tests
 ;;
+;; Version: 0.1
+;;
 ;; This is a minor mode designed to be used with clojure-mode.el and slime.el
 ;;
 ;; Usage:

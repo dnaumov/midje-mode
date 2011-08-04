@@ -13,8 +13,14 @@ and [clojure-jump-to-file](https://github.com/marick/Midje/wiki/Clojure-jump-to-
 
 Midje-mode can be installed through el-get: just add `midje-mode` to
 your `el-get-sources`.
-Also, you can download files manually and place it somewhere on
-`load-path`, then add following lines to your .emacs file:
+
+In addition, Midje-mode is on [marmalade-repo.org](http://marmalade-repo.org). Follow the
+instructions on marmalade-repo.org to use the maramalde repo, then
+install the midje-mode package.
+
+Finally, you can download files manually
+and place it somewhere on `load-path`, then add following lines to
+your .emacs file:
 
     (require 'midje-mode)
     (require 'clojure-jump-to-file)
