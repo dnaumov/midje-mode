@@ -56,7 +56,7 @@
 
 (defun midje-to-unfinished ()
   (goto-char (point-min))
-  (search-forward "(unfinished"))
+  (search-forward-regexp "(\\(.*/\\)?unfinished"))
 
 (defun midje-within-unfinished? ()
   (let ((target (point))
@@ -80,13 +80,18 @@
     (end-of-defun)
     (indent-region beg (point))))
 
+(defun midje-eval-unfinished ()
+  (midje-to-unfinished)
+  (end-of-defun)
+  (slime-eval-last-expression))
+
 (defun midje-add-identifier-to-unfinished-list (identifier)
   (save-excursion
     (save-restriction
       (widen)
       (midje-to-unfinished) (insert " ") (insert identifier)
-      (slime-interactive-eval (concat "(unfinished " identifier ")"))
-      (midje-tidy-unfinished))))
+      (midje-tidy-unfinished)
+      (midje-eval-unfinished))))
 
 (defun midje-remove-identifier-from-unfinished-list ()
   (save-excursion
