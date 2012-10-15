@@ -1,7 +1,7 @@
 ;;; midje-mode.el --- Minor mode for Midje tests
 
 (require 'clojure-mode)
-(require 'slime)
+(require 'nrepl)
 (require 'newcomment)
 (require 'midje-mode-praise)
 
@@ -9,19 +9,17 @@
 
 (defvar midje-comments ";.;.")
 (defvar last-checked-midje-fact nil)
+(defvar last-checked-midje-fact-ns nil)
 (defvar midje-fact-regexp "^(facts?\\([[:space:]]\\|$\\)")
 (defvar midje-syntax-table nil)
 
-;; Callbacks
-(defun midje-insert-above-fact (result)
+(defun midje-goto-above-fact ()
   (if (bolp) (forward-char)) ; at first character of defun, beginning-of-defun moves back.
-  (beginning-of-defun)
-  (midje-provide-result-info result))
+  (beginning-of-defun))
 
-(defun midje-insert-below-code-under-test (result)
+(defun midje-goto-below-code-under-test ()
   (end-of-defun)
-  (next-line)
-  (midje-provide-result-info result))
+  (forward-line))
 
 ;; Util
 
@@ -73,7 +71,7 @@
 (defun midje-eval-unfinished ()
   (midje-to-unfinished)
   (end-of-defun)
-  (slime-eval-last-expression))
+  (nrepl-eval-last-expression))
 
 (defun midje-add-identifier-to-unfinished-list (identifier)
   (save-excursion
@@ -107,12 +105,6 @@
   (newline-and-indent)
   (search-backward "[]")
   (forward-char))
-
-(defun midje-provide-result-info (result)
-  (destructuring-bind (output value) result
-    (if (string= output "")
-        (midje-display-reward)
-      (midje-insert-failure-message output))))
 
 (defun midje-insert-failure-message (str &optional justify)
   (let ((start-point (point))
@@ -190,18 +182,32 @@ all such comments."
         (beginning-of-line)
         (kill-line)))))
 
+(defun nrepl-check-fact-handler (buffer)
+  (nrepl-make-response-handler buffer
+                               (lambda (buffer str)
+                                 (with-current-buffer buffer
+                                   (if (string-equal str "true") (midje-display-reward))))
+                               (lambda (buffer str)
+                                 (with-current-buffer buffer
+                                   (midje-insert-failure-message (format "%s" str))))
+                               '()
+                               '()))
+
 (defun midje-check-fact-near-point ()
   "Used when `point' is on or just after a Midje fact.
 Check that fact and also save it for use of
 `midje-recheck-last-fact-checked'."
   (interactive)
   (midje-clear-comments)
+  (setq last-checked-midje-fact-ns nrepl-buffer-ns)
   (let ((string (save-excursion
                   (mark-defun)
                   (buffer-substring-no-properties (mark) (point)))))
     (setq last-checked-midje-fact string)
-    (slime-eval-async `(swank:eval-and-grab-output ,string)
-      'midje-insert-above-fact)))
+    (midje-goto-above-fact)
+    (nrepl-send-string string
+                       (nrepl-check-fact-handler (current-buffer))
+                       nrepl-buffer-ns)))
 
 (defun midje-recheck-last-fact-checked ()
   "Used when `point` is on or just after a def* form.
@@ -210,28 +216,10 @@ the last fact checked (by `midje-check-fact-near-point')."
 
   (interactive)
   (midje-clear-comments)
-  (setq midje-running-fact t)
-  (slime-compile-defun)
-                                        ; Callback is slime-compilation-finished, then midje-after-compilation-check-fact
-  )
-
-;; This is a HACK. I want to add midje-after-compilation-check-fact to
-;; the slime-compilation-finished-hook, but I can't seem to override the
-;; :options declaration in the original slime.el defcustom.
-(unless (fboundp 'original-slime-compilation-finished)
-  (setf (symbol-function 'original-slime-compilation-finished)
-        (symbol-function 'slime-compilation-finished)))
-
-(defun slime-compilation-finished (result)
-  (original-slime-compilation-finished result)
-  (with-struct (slime-compilation-result. notes duration successp) result
-    (if successp (midje-after-compilation-check-fact))))
-
-(defun midje-after-compilation-check-fact ()
-  (if midje-running-fact
-      (slime-eval-async `(swank:eval-and-grab-output ,last-checked-midje-fact)
-        'midje-insert-below-code-under-test))
-  (setq midje-running-fact nil))
+  (midje-goto-below-code-under-test)
+  (nrepl-send-string last-checked-midje-fact
+                     (nrepl-check-fact-handler (current-buffer))
+                     last-checked-midje-fact-ns))
 
 (defun midje-check-fact ()
   "If on or near a Midje fact, check it with
@@ -285,13 +273,10 @@ nearby Clojure form and recheck the last fact checked
 
 ;;;###autoload
 (define-minor-mode midje-mode
-  "A minor mode for running Midje tests when in `slime-mode'.
+  "A minor mode for running Midje tests when in `nrepl-mode'.
 
 \\{midje-mode-map}"
   nil " Midje" midje-mode-map
-  ;; This doesn't seem to work.
-  ;; (custom-add-option 'slime-compilation-finished-hook
-  ;;                    'midje-post-compilation-action)
   (hs-minor-mode 1))
 
 ;;;###autoload
