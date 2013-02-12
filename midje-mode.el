@@ -110,6 +110,7 @@
   (let ((start-point (point))
         (end-point (progn (insert str) (point))))
     (midje-add-midje-comments start-point end-point)
+    (ansi-color-apply-on-region start-point end-point)
     (goto-char start-point)
     (unless (string= ";" (char-to-string (char-after)))
       (delete-char 1))))
