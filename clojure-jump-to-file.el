@@ -1,4 +1,5 @@
 (require 'clojure-mode)
+(require 'clojure-test-mode)
 
 (defvar midje-root nil)
 (defvar midje-filename-stash '())
@@ -11,6 +12,30 @@
   (setq midje-root (expand-file-name here))
   (setq midje-filename-stash '()))
 
+(defun clojure-midje-test-for (namespace)
+  "Returns the path of the test file for the given namespace."
+  (let* ((namespace (clojure-underscores-for-hyphens namespace))
+         (path (butlast (split-string "tdd_practice.core" "\\.")))
+         (filename (concat "t_" (car (last (split-string namespace "\\."))))))
+    (format "%stest/%s.clj"
+            (file-name-as-directory
+             (locate-dominating-file buffer-file-name "src/"))
+            (mapconcat 'identity (append path (list filename)) "/"))))
+
+(defun clojure-midje-implementation-for (namespace)
+  "Returns the path of the src file for the given test namespace."
+  (let* ((namespace (clojure-underscores-for-hyphens namespace))
+         (segments (split-string namespace "\\."))
+         (namespace-end (split-string (car (last segments)) "_"))
+         (filename (mapconcat 'identity (cdr namespace-end) "_"))
+         (impl-segments (append (butlast segments 1) (list filename))))
+    (format "%s/src/%s.clj"
+            (locate-dominating-file buffer-file-name "src/")
+            (mapconcat 'identity impl-segments "/"))))
+
+(setq clojure-test-implementation-for-fn 'clojure-midje-implementation-for)
+
+(setq clojure-test-for-fn 'clojure-midje-test-for)
 
 (defun midje-visit-source ()
   "If the current line contains text like '../src/program.clj:34', visit 
