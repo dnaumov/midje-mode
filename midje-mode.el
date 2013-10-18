@@ -1,7 +1,8 @@
 ;;; midje-mode.el --- Minor mode for Midje tests
 
 (require 'clojure-mode)
-(require 'nrepl)
+(require 'cider)
+(require 'nrepl-client)
 (require 'newcomment)
 (require 'midje-mode-praise)
 
@@ -71,7 +72,7 @@
 (defun midje-eval-unfinished ()
   (midje-to-unfinished)
   (end-of-defun)
-  (nrepl-eval-last-expression))
+  (cider-eval-last-expression))
 
 (defun midje-add-identifier-to-unfinished-list (identifier)
   (save-excursion
@@ -274,7 +275,7 @@ nearby Clojure form and recheck the last fact checked
 
 ;;;###autoload
 (define-minor-mode midje-mode
-  "A minor mode for running Midje tests when in `nrepl-mode'.
+  "A minor mode for running Midje tests when using cider.
 
 \\{midje-mode-map}"
   nil " Midje" midje-mode-map
