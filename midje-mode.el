@@ -206,7 +206,7 @@ Check that fact and also save it for use of
 `midje-recheck-last-fact-checked'."
   (interactive)
   (midje-clear-comments)
-  (setq last-checked-midje-fact-ns nrepl-buffer-ns)
+  (setq last-checked-midje-fact-ns (cider-current-ns))
   (let ((string (save-excursion
                   (mark-defun)
                   (buffer-substring-no-properties (mark) (point)))))
@@ -214,7 +214,7 @@ Check that fact and also save it for use of
     (midje-goto-above-fact)
     (nrepl-send-string string
                        (nrepl-check-fact-handler (current-buffer))
-                       nrepl-buffer-ns)))
+                       (cider-current-ns))))
 
 (defun midje-recheck-last-fact-checked ()
   "Used when `point` is on or just after a def* form.
