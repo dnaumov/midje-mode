@@ -1,7 +1,8 @@
 (defun midje-random-praise ()
-  (concat (nth (mod (random t) (length midje-praise-quotes))
-	       midje-praise-quotes )
-	  "\n"))
+  (when midje-praise-quotes
+    (concat (nth (mod (random t) (length midje-praise-quotes))
+                 midje-praise-quotes )
+            "\n")))
 
 (defvar midje-praise-quotes 
 '(

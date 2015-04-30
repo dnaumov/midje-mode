@@ -25,6 +25,15 @@ your .emacs file:
     (require 'midje-mode)
     (require 'clojure-jump-to-file)
 
+# Configure
+
+When a command that only checks a single fact succeeds, midje-mode's
+default behavior is to insert random praise in a comment before the
+fact. You can customize the collection of praise by changing the
+variable `midje-praise-quotes`. If you set it to `nil`, no praise will
+be inserted as a comment; instead, you will see a slightly less
+inspiring message in the minibuffer when your checks pass.
+
 # Contributors
 
 * Chris Bilson

@@ -117,14 +117,19 @@
       (delete-char 1))))
 
 (defun midje-display-reward ()
-  (save-excursion
-    (save-restriction
-      (let ((start (point)))
-        (insert (midje-random-praise))
-        (narrow-to-region start (point))
-        (goto-char (point-min))
-        (fill-paragraph nil)
-        (midje-add-midje-comments (point-min) (point-max))))))
+  (let ((praise (midje-random-praise)))
+    (if praise
+        (save-excursion
+          (save-restriction
+            (let ((start (point)))
+              (insert (midje-random-praise))
+              (narrow-to-region start (point))
+              (goto-char (point-min))
+              (fill-paragraph nil)
+              (midje-add-midje-comments (point-min) (point-max))_)))
+      (progn
+        (midje-clear-comments)
+        (message "The check(s) for this fact succeeded")))))
 
 (defun midje-add-midje-comments (start-point end-point)
   (let ((comment-start midje-comments)
