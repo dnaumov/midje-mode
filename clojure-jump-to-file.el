@@ -1,9 +1,8 @@
 (require 'clojure-mode)
-(require 'clojure-test-mode)
 
 (defvar midje-root nil)
 (defvar midje-filename-stash '())
-(global-set-key "\^hj" 'midje-visit-source)    
+(global-set-key "\^hj" 'midje-visit-source)
 
 (defun midje-root (here)
   "Set the root directory that."
@@ -33,22 +32,18 @@
             (locate-dominating-file buffer-file-name "src/")
             (mapconcat 'identity impl-segments "/"))))
 
-(setq clojure-test-implementation-for-fn 'clojure-midje-implementation-for)
-
-(setq clojure-test-for-fn 'clojure-midje-test-for)
-
 (defun midje-visit-source ()
-  "If the current line contains text like '../src/program.clj:34', visit 
+  "If the current line contains text like '../src/program.clj:34', visit
 that file in the other window and position point on that line."
   (interactive)
   (unless midje-root (call-interactively #'midje-root))
   (let* ((start-boundary (save-excursion (beginning-of-line) (point)))
          (regexp (concat "\\([ \t\n\r\"'([<{]\\|^\\)" ; non file chars or
                                                       ; effective
-                                                      ; beginning of file  
+                                                      ; beginning of file
                          "\\(.+\\.clj\\):\\([0-9]+\\)" ; file.rb:NNN
 			 "\\(\\+[0-9]\\)?"
-			 )) 
+			 ))
          (matchp (save-excursion
                   (end-of-line)
                   ;; if two matches on line, the second is most likely
@@ -88,11 +83,11 @@ that file in the other window and position point on that line."
 			   (midje-matching-file file))))
     (message (concat "relevant file is " relevant-file))
     (message increment)
-    (if (not relevant-file) 
+    (if (not relevant-file)
 	(error (concat "No Clojure file matches " file))
       (find-file-other-window relevant-file)
       (goto-line (string-to-int line))
-      (if increment 
+      (if increment
 	  (search-forward "=>" nil nil (string-to-int increment)))))
 )
 
