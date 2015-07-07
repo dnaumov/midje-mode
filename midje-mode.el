@@ -5,6 +5,7 @@
 (require 'nrepl-client)
 (require 'newcomment)
 (require 'midje-mode-praise)
+(require 'cl-macs)
 
 (defvar midje-running-fact nil)   ;; KLUDGE!
 
@@ -152,7 +153,7 @@
 
 (add-hook 'midje-mode-hook 'midje-colorize)
 (defun midje-colorize ()
-  (flet ((f (keywords face)
+  (cl-flet ((f (keywords face)
             (cons (concat "\\<\\("
                           (mapconcat 'symbol-name keywords "\\|")
                           "\\)\\>")
