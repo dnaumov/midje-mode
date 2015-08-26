@@ -213,9 +213,12 @@ Check that fact and also save it for use of
                   (buffer-substring-no-properties (mark) (point)))))
     (setq last-checked-midje-fact string)
     (midje-goto-above-fact)
-    (nrepl-send-string string
-                       (nrepl-check-fact-handler (current-buffer))
-                       (cider-current-ns))))
+    (nrepl-send-request
+     (list "op" "eval"
+	   "ns" (cider-current-ns)
+	   "code" string
+	   "session" (cider-current-session))
+     (nrepl-check-fact-handler (current-buffer)))))
 
 (defun midje-recheck-last-fact-checked ()
   "Used when `point` is on or just after a def* form.
@@ -225,9 +228,12 @@ the last fact checked (by `midje-check-fact-near-point')."
   (interactive)
   (midje-clear-comments)
   (midje-goto-below-code-under-test)
-  (nrepl-send-string last-checked-midje-fact
-                     (nrepl-check-fact-handler (current-buffer))
-                     last-checked-midje-fact-ns))
+  (nrepl-send-request
+     (list "op" "eval"
+	   "ns" last-checked-midje-fact-ns
+	   "code" last-checked-midje-fact
+	   "session" (cider-current-session))
+     (nrepl-check-fact-handler (current-buffer))))
 
 (defun midje-check-fact ()
   "If on or near a Midje fact, check it with
