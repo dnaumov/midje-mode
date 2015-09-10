@@ -213,7 +213,7 @@ Check that fact and also save it for use of
                   (buffer-substring-no-properties (mark) (point)))))
     (setq last-checked-midje-fact string)
     (midje-goto-above-fact)
-    (nrepl-send-request
+    (cider-nrepl-send-request
      (list "op" "eval"
 	   "ns" (cider-current-ns)
 	   "code" string
@@ -228,7 +228,7 @@ the last fact checked (by `midje-check-fact-near-point')."
   (interactive)
   (midje-clear-comments)
   (midje-goto-below-code-under-test)
-  (nrepl-send-request
+  (cider-nrepl-send-request
      (list "op" "eval"
 	   "ns" last-checked-midje-fact-ns
 	   "code" last-checked-midje-fact
