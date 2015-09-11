@@ -127,7 +127,7 @@
               (narrow-to-region start (point))
               (goto-char (point-min))
               (fill-paragraph nil)
-              (midje-add-midje-comments (point-min) (point-max))_)))
+              (midje-add-midje-comments (point-min) (point-max)))))
       (progn
         (midje-clear-comments)
         (message "The check(s) for this fact succeeded")))))
