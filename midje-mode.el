@@ -15,6 +15,12 @@
 (defvar midje-fact-regexp "^(\\(\\(facts?\\)\\|\\(tabular\\)\\)\\([[:space:]]\\|$\\)")
 (defvar midje-syntax-table nil)
 
+(defvar midje-keymap-prefix (kbd "C-c")
+  "Midje-mode keymap prefix.
+
+Set this to a new key-combination to keep the same keys as
+before except for a different prefix.")
+
 (defun midje-goto-above-fact ()
   (if (bolp) (forward-char)) ; at first character of defun, beginning-of-defun moves back.
   (beginning-of-defun))
@@ -267,21 +273,22 @@ nearby Clojure form and recheck the last fact checked
 
 (defvar midje-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c ,") 'midje-check-fact)
-    (define-key map (kbd "C-c .") 'midje-check-fact)
-    (define-key map (kbd "C-c C-,") 'midje-check-fact-near-point)
-    (define-key map (kbd "C-c C-.") 'midje-recheck-last-fact-checked)
-    (define-key map (kbd "C-c k")   'midje-clear-comments)
+    (let ((prefix-map (make-sparse-keymap)))
+      (define-key prefix-map (kbd ",") 'midje-check-fact)
+      (define-key prefix-map (kbd ".") 'midje-check-fact)
+      (define-key prefix-map (kbd "C-,") 'midje-check-fact-near-point)
+      (define-key prefix-map (kbd "C-.") 'midje-recheck-last-fact-checked)
+      (define-key prefix-map (kbd "k")   'midje-clear-comments)
 
-    (define-key map (kbd "C-c f") 'midje-focus-on-this-fact)
-    (define-key map (kbd "C-c h") 'midje-hide-all-facts)
-    (define-key map (kbd "C-c s") 'midje-show-all-facts)
+      (define-key prefix-map (kbd "f") 'midje-focus-on-this-fact)
+      (define-key prefix-map (kbd "h") 'midje-hide-all-facts)
+      (define-key prefix-map (kbd "s") 'midje-show-all-facts)
 
-    (define-key map (kbd "C-c n") 'midje-next-fact)
-    (define-key map (kbd "C-c p") 'midje-previous-fact)
+      (define-key prefix-map (kbd "n") 'midje-next-fact)
+      (define-key prefix-map (kbd "p") 'midje-previous-fact)
 
-    (define-key map (kbd "C-c u") 'midje-unfinished)
-
+      (define-key prefix-map (kbd "u") 'midje-unfinished)
+      (define-key map midje-keymap-prefix prefix-map))
     map)
   "Keymap for Midje mode.")
 
