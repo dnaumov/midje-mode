@@ -1,0 +1,33 @@
+-   repo: https://github.com/pre-commit/pre-commit-hooks.git
+    sha: 2c62e4aafc6708f7bdc5536670726729724445c8
+    stages:
+    - commit
+    - push
+    hooks:
+    -   id: detect-aws-credentials
+    -   id: detect-private-key
+-   repo: git://github.com/marick/pre-commit-hooks
+    sha: a4bfe84e14025ee174a48cbe3069b14f9421efb6
+    stages:
+    - commit
+    - push
+    hooks:
+    -   id: only-branch-pushes
+        args:
+        - prevent
+        - ^(production|master)$
+    -   id: prohibit-suspicious-patterns
+        args:
+        - AKIA[[:alnum:]]{14}
+        - NOCOMMIT
+        - --
+    -   id: prohibit-suspicious-files
+        args:
+        - ^\.ssh$
+        - ^\.npmrc$
+        - ^\.muttrc$
+        - ^\.gitconfig$
+        - ^\.netrc$
+        - ^\.lein-env$
+        - .log$
+        - --
