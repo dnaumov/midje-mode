@@ -12,14 +12,9 @@
     - commit
     - push
     hooks:
-    -   id: only-branch-pushes
-        args:
-        - prevent
-        - ^(production|master)$
     -   id: prohibit-suspicious-patterns
         args:
         - AKIA[[:alnum:]]{14}
-        - NOCOMMIT
         - --
     -   id: prohibit-suspicious-files
         args:
